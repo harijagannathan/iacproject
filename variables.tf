@@ -39,16 +39,16 @@ variable "availability_zones" {
 }
 
 variable "max_instance_count" {
-  type = number
+  type        = number
   description = "Maximum Number of EC2 instances in Auto Scaling Group"
 }
 
 variable "min_instance_count" {
-  type = number
+  type        = number
   description = "Minimun Number of EC2 instances in Auto Scaling Group"
 }
 
 variable "desired_instance_count" {
-  type = number
+  type        = number
   description = "Desired Number of EC2 instances in Auto Scaling Group"
 }

@@ -1,5 +1,5 @@
 resource "aws_security_group" "sg_for_lb" {
-  name   = "sg_for_lb"
+  name   = "${terraform.workspace}_sg_for_lb"
   vpc_id = aws_vpc.vpc_main.id
   ingress {
     description = "Allow HTTP from Internet"
@@ -25,7 +25,7 @@ resource "aws_security_group" "sg_for_lb" {
 }
 
 resource "aws_security_group" "sg_for_ec2" {
-  name   = "sg_for_ec2"
+  name   = "${terraform.workspace}_sg_for_ec2"
   vpc_id = aws_vpc.vpc_main.id
   ingress {
     description     = "Allow HTTP from Internet"
