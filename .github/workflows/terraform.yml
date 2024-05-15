@@ -46,7 +46,7 @@ name: 'Terraform'
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "test" ]
   pull_request:
 
 permissions:
@@ -68,6 +68,16 @@ jobs:
         shell: bash
 
     steps:
+    # Set Workspace
+    - name: Set Workspace
+      id: set_workspace
+      run: |
+       prod="${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}"
+       if [ "$prod" = true ]; then
+        echo "::set-output name=workspace::prod"
+       else
+        echo "::set-output name=workspace::test"
+       fi
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
@@ -80,7 +90,7 @@ jobs:
     - name: Terraform Init
       run: |
         terraform init
-        terraform workspace select test
+        terraform workspace select ${{ steps.set_workspace.outputs.workspace }}
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
@@ -88,10 +98,10 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -input=false -var-file="test.tfvars"
+      run: terraform plan -input=false -var-file="${{ steps.set_workspace.outputs.workspace }}.tfvars"
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false -var-file="test.tfvars"
+      run: terraform apply -auto-approve -input=false -var-file="${{ steps.set_workspace.outputs.workspace }}.tfvars"
